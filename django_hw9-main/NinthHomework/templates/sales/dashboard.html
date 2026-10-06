@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Аналітична панель звітів</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 30px; line-height: 1.6; }
+        .section { background: #f9f9f9; padding: 20px; border: 1px solid #ddd; margin-bottom: 20px; border-radius: 5px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        h2 { color: #333; border-bottom: 2px solid #333; padding-bottom: 5px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background: #eee; }
+    </style>
+</head>
+<body>
+
+    <h1>📊 Центр аналітики та звітів</h1>
+
+    <div class="section">
+        <h2>Завдання 3: Вибіркові звіти та фільтрація</h2>
+        
+        <div class="grid">
+            <div>
+                <form method="get">
+                    <label>Покупці продавця:</label>
+                    <select name="seller_for_buyers">
+                        {% for s in all_sellers %}<option value="{{ s.id }}">{{ s.name }}</option>{% endfor %}
+                    </select>
+                    <button type="submit">Згенерувати</button>
+                </form>
+                {% if buyers_by_seller %}
+                    <h4>Покупці продавця ({{ selected_seller.name }}):</h4>
+                    <ul>{% for b in buyers_by_seller %}<li>{{ b.name }}</li>{% endfor %}</ul>
+                {% endif %}
+            </div>
+
+            <div>
+                <form method="get">
+                    <label>Звіт за дату:</label>
+                    <input type="date" name="specific_date" value="{{ request.GET.specific_date }}">
+                    <button type="submit">Шукати</button>
+                </form>
+                {% if sales_on_date %}
+                    <h4>Звіт за {{ request.GET.specific_date }}:</h4>
+                    <p><strong>Загальна сума продажів:</strong> {{ total_sum_on_date }} грн.</p>
+                    <ul>{% for sale in sales_on_date %}<li>Угода №{{ sale.id }} — {{ sale.total_amount }} грн.</li>{% endfor %}</ul>
+                {% endif %}
+            </div>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <form method="get">
+                <label>Аналітика по товару:</label>
+                <select name="product_filter">
+                    {% for p in all_products %}<option value="{{ p.id }}">{{ p.name }}</option>{% endfor %}
+                </select>
+                <button type="submit">Отримати дані</button>
+            </form>
+            {% if selected_product %}
+                <h4>Результати для товару "{{ selected_product.name }}":</h4>
+                <div class="grid">
+                    <div>
+                        <h5>Продали цей товар:</h5>
+                        <ul>{% for s in sellers_by_product %}<li>{{ s.name }}</li>{% empty %}<li>Ніхто не продавав</li>{% endfor %}</ul>
+                    </div>
+                    <div>
+                        <h5>Купили цей товар:</h5>
+                        <ul>{% for b in buyers_by_product %}<li>{{ b.name }}</li>{% empty %}<li>Ніхто не купував</li>{% endfor %}</ul>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+
+    <div class="section">
+        <h2>Завдання 4: Найкращі показники (Рейтинги)</h2>
+        
+        <form method="get" style="margin-bottom: 20px; background: #eef; padding: 15px; border-radius: 4px;">
+            <label><strong>Встановити проміжок часу для звіту:</strong></label>
+            З: <input type="date" name="start_date" value="{{ request.GET.start_date }}">
+            По: <input type="date" name="end_date" value="{{ request.GET.end_date }}">
+            <button type="submit">Застосувати період</button>
+        </form>
+
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Критерій лідерства</th>
+                    <th>За весь час (Глобально)</th>
+                    <th>За вказаний період ({% if time_period %}{{ time_period }}{% else %}період не обрано{% endif %})</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Товар, що найбільше продається</strong></td>
+                    <td>{{ top_product_global.name }} (Угод: {{ top_product_global.sales_count }})</td>
+                    <td>{% if top_product_period %}{{ top_product_period.name }} (Угод: {{ top_product_period.sales_count }}){% else %}—{% endif %}</td>
+                </tr>
+                <tr>
+                    <td><strong>Найкращий продавець (Макс. сума)</strong></td>
+                    <td>{{ top_seller_global.name }} ({{ top_seller_global.total_sales }} грн.)</td>
+                    <td>{% if top_seller_period %}{{ top_seller_period.name }} ({{ top_seller_period.total_sales }} грн.){% else %}—{% endif %}</td>
+                </tr>
+                <tr>
+                    <td><strong>Кращий покупець (Макс. сума)</strong></td>
+                    <td>{{ top_buyer_global.name }} (Витратив: {{ top_buyer_global.total_spent }} грн.)</td>
+                    <td>{% if top_buyer_period %}{{ top_buyer_period.name }} (Витратив: {{ top_buyer_period.total_spent }} грн.){% else %}—{% endif %}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</body>
+</html>

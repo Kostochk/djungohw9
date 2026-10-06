@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head><title>Підтвердження видалення</title></head>
+<body>
+    <h1>Увага! Видалення об'єкта</h1>
+    <p>Ви дійсно впевнені, що хочете безповоротно видалити: <strong>{{ obj }}</strong>?</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" style="background-color: red; color: white; padding: 10px 20px;">Так, видалити</button>
+        <a href="{% url 'reports_dashboard' %}" style="margin-left: 15px;">Скасувати</a>
+    </form>
+</body>
+</html>

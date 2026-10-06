@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head><title>{{ title }}</title></head>
+<body>
+    <h1>{{ title }}</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" style="background-color: green; color: white; padding: 10px 20px;">Зберегти зміни</button>
+    </form>
+    <br>
+    <a href="{% url 'reports_dashboard' %}">Назад</a>
+</body>
+</html>
